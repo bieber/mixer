@@ -25,7 +25,9 @@ import (
 	"github.com/bieber/mixer/mixerserver/context"
 	"github.com/bieber/mixer/mixerserver/crypto"
 	"github.com/bieber/mixer/mixerserver/util"
+	"io/ioutil"
 	"net/http"
+	"net/url"
 )
 
 // Login handles login responses from the Spotify API
@@ -49,6 +51,46 @@ func Login(globalContext *context.GlobalContext) http.HandlerFunc {
 			panic(errors.New("CSRF mismatch"))
 		}
 
-		w.Write([]byte(r.URL.RawQuery))
+		data := map[string]interface{}{
+			"error": r.URL.Query().Get("error"),
+		}
+
+		if r.URL.Query().Get("error") == "" {
+			redirectURI, err := loginURI(globalContext, r.Host)
+			if err != nil {
+				panic(err)
+			}
+
+			response, err := http.PostForm(
+				"https://accounts.spotify.com/api/token",
+				url.Values{
+					"grant_type":   []string{"authorization_code"},
+					"code":         []string{r.URL.Query().Get("code")},
+					"redirect_uri": []string{redirectURI.String()},
+					"client_id":    []string{globalContext.Spotify.ClientID},
+					"client_secret": []string{
+						globalContext.Spotify.ClientSecret,
+					},
+				},
+			)
+			if err != nil {
+				panic(err)
+			}
+			body, err := ioutil.ReadAll(response.Body)
+			if err != nil {
+				panic(err)
+			}
+
+			token, err := crypto.Encrypt(string(body))
+			if err != nil {
+				panic(err)
+			}
+			data["token"] = token
+		}
+
+		err = globalContext.Templates.Login.Execute(w, data)
+		if err != nil {
+			panic(err)
+		}
 	}
 }

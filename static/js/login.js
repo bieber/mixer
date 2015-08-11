@@ -1,4 +1,4 @@
-{{/*
+/*
  * Copyright 2015, Robert Bieber
  *
  * This file is part of mixer.
@@ -15,23 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with mixer.  If not, see <http://www.gnu.org/licenses/>.
- */}}
-<!DOCTYPE HTML>
-<html>
-	<head>
-		<title>Playlist Mixer</title>
-		<link
-			rel="stylesheet"
-			type="text/css"
-			href="/static/css/style.css">
-		</link>
-	</head>
-	<body>
-		<script type="text/javascript" src="/static/js/index.js"></script>
-		<script type="text/javascript">
+ */
 
-		require('index')({{.}})
-
-		</script>
-	</body>
-</html>
+export default function login(data) {
+	if (data.error === '') {
+		window.opener.onLogin(data.token);
+	}
+	window.close();
+}

@@ -13,6 +13,7 @@ type GlobalContext struct {
 	Router    *mux.Router
 	Templates struct {
 		Index *template.Template
+		Login *template.Template
 	}
 	LogOut  io.Writer
 	Spotify struct {

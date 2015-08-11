@@ -41,5 +41,12 @@ func initTemplates(
 		return err
 	}
 
+	globalContext.Templates.Login, err = template.ParseFiles(
+		staticPath("login.got"),
+	)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

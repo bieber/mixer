@@ -21,7 +21,7 @@ import React from 'react';
 
 import IndexPage from './pages/IndexPage.js';
 
-export default function init(data) {
+export default function index(data) {
 	React.render(
 		<IndexPage loginURI={data.login_uri} />,
 		document.body

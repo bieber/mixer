@@ -19,7 +19,7 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<title>Playlist Mixer</title>
+		<title>Login</title>
 		<link
 			rel="stylesheet"
 			type="text/css"
@@ -27,10 +27,10 @@
 		</link>
 	</head>
 	<body>
-		<script type="text/javascript" src="/static/js/index.js"></script>
+		<script type="text/javascript" src="/static/js/login.js"></script>
 		<script type="text/javascript">
 
-		require('index')({{.}})
+		require('login')({{.}});
 
 		</script>
 	</body>

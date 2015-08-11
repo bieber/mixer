@@ -49,12 +49,10 @@ func Index(globalContext *context.GlobalContext) http.HandlerFunc {
 			"playlist-modify-private",
 		}
 
-		loginCompletionURI, err := globalContext.Router.Get("login").URL()
+		loginCompletionURI, err := loginURI(globalContext, r.Host)
 		if err != nil {
 			panic(err)
 		}
-		loginCompletionURI.Scheme = "http"
-		loginCompletionURI.Host = r.Host
 
 		loginURI, err := url.Parse("https://accounts.spotify.com/authorize/")
 		if err != nil {
@@ -78,4 +76,19 @@ func Index(globalContext *context.GlobalContext) http.HandlerFunc {
 			panic(err)
 		}
 	}
+}
+
+// loginURI assembles the login URI to redirect to from the Spotify
+// login API.
+func loginURI(
+	globalContext *context.GlobalContext,
+	host string,
+) (*url.URL, error) {
+	loginCompletionURI, err := globalContext.Router.Get("login").URL()
+	if err != nil {
+		return nil, err
+	}
+	loginCompletionURI.Scheme = "http"
+	loginCompletionURI.Host = host
+	return loginCompletionURI, nil
 }
