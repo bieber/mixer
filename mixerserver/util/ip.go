@@ -17,21 +17,14 @@
  * along with mixer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-body {
-	font-size: 20px;
-}
+package util
 
-div.container {
-	width: 800px;
-	margin-left: auto;
-	margin-right: auto;
-}
+import (
+	"strings"
+)
 
-.container h1 {
-	font-size: 30px;
-	text-align: center;
-}
-
-div.login_button_container {
-	text-align: center;
+// StripPort removes the port from the end of an IP address.
+func StripPort(ip string) string {
+	parts := strings.Split(ip, ":")
+	return strings.Join(parts[:len(parts)-1], ":")
 }

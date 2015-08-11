@@ -54,6 +54,8 @@ gulp.task('build', function() {
 	gulp.src('./css/**/*.css')
 		.pipe(gulp.dest('./build/css/'));
 
+	gulp.src('./img/**/*')
+		.pipe(gulp.dest('./build/img/'));
 });
 
 gulp.task('watch', function() {

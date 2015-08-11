@@ -17,21 +17,37 @@
  * along with mixer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-body {
-	font-size: 20px;
-}
+import React from 'react';
 
-div.container {
-	width: 800px;
-	margin-left: auto;
-	margin-right: auto;
-}
+import Intro from '../views/Intro.js';
 
-.container h1 {
-	font-size: 30px;
-	text-align: center;
-}
+export default class IndexPage extends React.Component {
+	constructor(props, context) {
+		super(props, context);
+		this.state = {
+			someStuff: null,
+		};
+	}
 
-div.login_button_container {
-	text-align: center;
+	onLogin(data) {
+		console.log(data);
+	}
+
+	render() {
+		var view = (
+			<Intro
+				loginURI={this.props.loginURI}
+				onLogin={this.onLogin.bind(this)}
+			/>
+		);
+
+		return (
+			<div className="container">
+				{view}
+			</div>
+		);
+	}
 }
+IndexPage.propTypes = {
+	loginURI: React.PropTypes.string.isRequired,
+};

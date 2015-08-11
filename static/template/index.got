@@ -30,7 +30,9 @@
 		<script type="text/javascript" src="/static/js/index.js"></script>
 		<script type="text/javascript">
 
-		require('index')();
+		require('index')({
+			login_uri: {{.login_uri}}
+		});
 
 		</script>
 	</body>

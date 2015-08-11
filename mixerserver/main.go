@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"github.com/bieber/conflag"
 	"github.com/bieber/mixer/mixerserver/context"
+	"github.com/bieber/mixer/mixerserver/crypto"
 	"golang.org/x/crypto/ssh/terminal"
 	"io"
 	"log"
@@ -32,10 +33,18 @@ import (
 
 // Config defines configuration options for the server.
 type Config struct {
-	Help bool
-	HTTP struct {
+	Help   bool
+	GenKey bool
+	HTTP   struct {
 		Port                int
 		StaticResourcesPath string
+	}
+	Spotify struct {
+		ClientID     string
+		ClientSecret string
+	}
+	Crypto struct {
+		AESKey string
 	}
 	Log struct {
 		FilePath string
@@ -70,9 +79,21 @@ func main() {
 		logOut = fout
 	}
 
+	if config.GenKey {
+		key, err := crypto.GenerateAESKey()
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(key)
+		return
+	}
+	crypto.SetAESKey(config.Crypto.AESKey)
+
 	globalContext := &context.GlobalContext{
 		LogOut: logOut,
 	}
+	globalContext.Spotify.ClientID = config.Spotify.ClientID
+	globalContext.Spotify.ClientSecret = config.Spotify.ClientSecret
 
 	initRoutes(globalContext, config.HTTP.StaticResourcesPath)
 
@@ -104,6 +125,10 @@ func getConfig() (*Config, *conflag.Config) {
 		ShortFlag('h').
 		Description("Print usage text and exit.")
 
+	parser.Field("GenKey").
+		ShortFlag('k').
+		Description("Print a random AES key and exit.")
+
 	parser.Field("HTTP.Port").
 		ShortFlag('p').
 		Description("Port to serve HTTP traffic on.")
@@ -118,6 +143,23 @@ func getConfig() (*Config, *conflag.Config) {
 		ShortFlag('l').
 		LongFlag("log-file").
 		Description("Optional log output file (logs go to stderr by default)")
+
+	parser.Field("Spotify.ClientID").
+		LongFlag("client-id").
+		Required().
+		Description("Client ID for the Spotify API.")
+
+	parser.Field("Spotify.ClientSecret").
+		LongFlag("client-secret").
+		Required().
+		Description("Client secret for the Spotify API.")
+
+	parser.Field("Crypto.AESKey").
+		ShortFlag(0).
+		LongFlag("").
+		FileKey("aes_key").
+		Required().
+		Description("URL encoded Base64 AES key to encode secrets and CSRF")
 
 	return config, parser
 }

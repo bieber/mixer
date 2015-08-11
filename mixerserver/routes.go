@@ -49,6 +49,8 @@ func initRoutes(
 	r.NotFoundHandler = basicStack.ThenFunc(handlers.FourOhFour)
 
 	r.Handle("/", basicStack.Then(handlers.Index(globalContext)))
+	r.Handle("/login/", basicStack.Then(handlers.Login(globalContext))).
+		Name("login")
 
 	staticHandler := func(subpath string) http.Handler {
 		return basicStack.Then(
@@ -66,4 +68,5 @@ func initRoutes(
 
 	s.Handle("/js/{rest:.*}", staticHandler("/js"))
 	s.Handle("/css/{rest:.*}", staticHandler("/css"))
+	s.Handle("/img/{rest:.*}", staticHandler("/img"))
 }

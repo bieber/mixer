@@ -19,9 +19,11 @@
 
 import React from 'react';
 
-export default function init() {
+import IndexPage from './pages/IndexPage.js';
+
+export default function init(data) {
 	React.render(
-		<p>Test</p>,
+		<IndexPage loginURI={data.login_uri} />,
 		document.body
 	);
 }
