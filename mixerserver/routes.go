@@ -46,11 +46,15 @@ func initRoutes(
 		middleware.ErrorCatcher,
 	)
 
+	tokenStack := basicStack.Append(middleware.TokenParser)
+
 	r.NotFoundHandler = basicStack.ThenFunc(handlers.FourOhFour)
 
 	r.Handle("/", basicStack.Then(handlers.Index(globalContext)))
 	r.Handle("/login/", basicStack.Then(handlers.Login(globalContext))).
 		Name("login")
+	r.Handle("/playlists/", tokenStack.ThenFunc(handlers.Playlists)).
+		Name("playlists")
 
 	staticHandler := func(subpath string) http.Handler {
 		return basicStack.Then(

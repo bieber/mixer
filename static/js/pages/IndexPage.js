@@ -18,19 +18,31 @@
  */
 
 import React from 'react';
+import Qajax from 'qajax';
 
 import Intro from '../views/Intro.js';
+import Composer from '../views/Composer.js';
 
 export default class IndexPage extends React.Component {
 	constructor(props, context) {
 		super(props, context);
 		this.state = {
-			someStuff: null,
+			token: null,
+			playlists: null,
 		};
 	}
 
 	onLogin(data) {
-		console.log(data);
+		this.setState({token: data.token});
+		setTimeout(this.refreshToken.bind(this), data.expires_in * 1000);
+		Qajax({
+			url: this.props.playlistsURI,
+			params: {token: this.state.token},
+		});
+	}
+
+	refreshToken() {
+		console.log('Refreshing login tokens');
 	}
 
 	render() {
@@ -41,6 +53,15 @@ export default class IndexPage extends React.Component {
 			/>
 		);
 
+		if (this.state.token !== null) {
+			view = (
+				<Composer
+					token={this.state.token}
+					playlists={this.state.playlists}
+				/>
+			);
+		}
+
 		return (
 			<div className="container">
 				{view}
@@ -50,4 +71,5 @@ export default class IndexPage extends React.Component {
 }
 IndexPage.propTypes = {
 	loginURI: React.PropTypes.string.isRequired,
+	playlistsURI: React.PropTypes.string.isRequired,
 };

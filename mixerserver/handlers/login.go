@@ -80,6 +80,15 @@ func Login(globalContext *context.GlobalContext) http.HandlerFunc {
 			if err != nil {
 				panic(err)
 			}
+			response.Body.Close()
+
+			tokens := map[string]interface{}{}
+			err = json.Unmarshal(body, &tokens)
+			if err != nil {
+				panic(err)
+			}
+
+			data["expires_in"] = tokens["expires_in"]
 
 			token, err := crypto.Encrypt(string(body))
 			if err != nil {

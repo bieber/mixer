@@ -66,10 +66,16 @@ func Index(globalContext *context.GlobalContext) http.HandlerFunc {
 			"redirect_uri":  []string{loginCompletionURI.String()},
 		}).Encode()
 
+		playlistURI, err := globalContext.Router.Get("playlists").URL()
+		if err != nil {
+			panic(err)
+		}
+
 		err = globalContext.Templates.Index.Execute(
 			w,
 			map[string]interface{}{
-				"login_uri": loginURI.String(),
+				"loginURI":     loginURI.String(),
+				"playlistsURI": playlistURI.String(),
 			},
 		)
 		if err != nil {

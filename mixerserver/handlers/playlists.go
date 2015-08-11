@@ -17,13 +17,16 @@
  * along with mixer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React from 'react';
+package handlers
 
-import IndexPage from './pages/IndexPage.js';
+import (
+	"github.com/bieber/mixer/mixerserver/context"
+	"net/http"
+)
 
-export default function index(data) {
-	React.render(
-		<IndexPage {...data} />,
-		document.body
-	);
+// Playlists fetches and returns a list of the user's playlists as
+// JSON.
+func Playlists(w http.ResponseWriter, r *http.Request) {
+	localContext := context.Get(r)
+	_ = localContext
 }

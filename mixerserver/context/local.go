@@ -10,7 +10,11 @@ import (
 // should be both written to and read from by middleware, and read
 // from by controllers.
 type LocalContext struct {
-	Logger *logger.Logger
+	Logger  *logger.Logger
+	Spotify struct {
+		AccessToken  string
+		RefreshToken string
+	}
 }
 
 var localMutex = sync.Mutex{}

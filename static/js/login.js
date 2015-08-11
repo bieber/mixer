@@ -19,7 +19,7 @@
 
 export default function login(data) {
 	if (data.error === '') {
-		window.opener.onLogin(data.token);
+		window.opener.onLogin(data);
 	}
 	window.close();
 }

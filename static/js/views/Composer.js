@@ -19,11 +19,21 @@
 
 import React from 'react';
 
-import IndexPage from './pages/IndexPage.js';
+export default class Composer extends React.Component {
+	constructor(props, context) {
+		super(props, context);
+		this.state = {};
+	}
 
-export default function index(data) {
-	React.render(
-		<IndexPage {...data} />,
-		document.body
-	);
+	render() {
+		if (!this.props.playlists) {
+			return <h1>Loading playlists...</h1>;
+		}
+
+		return <p>Test</p>;
+	}
 }
+Composer.propTypes = {
+	token: React.PropTypes.string.isRequired,
+	playlists: React.PropTypes.array,
+};
