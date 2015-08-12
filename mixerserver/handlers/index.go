@@ -23,10 +23,10 @@ import (
 	"encoding/json"
 	"github.com/bieber/mixer/mixerserver/context"
 	"github.com/bieber/mixer/mixerserver/crypto"
+	"github.com/bieber/mixer/mixerserver/spotify"
 	"github.com/bieber/mixer/mixerserver/util"
 	"net/http"
 	"net/url"
-	"strings"
 )
 
 // Index renders the homepage.
@@ -42,29 +42,19 @@ func Index(globalContext *context.GlobalContext) http.HandlerFunc {
 		}
 		csrfToken, err := crypto.Encrypt(string(csrfPlaintext))
 
-		scopes := []string{
-			"playlist-read-private",
-			"playlist-read-collaborative",
-			"playlist-modify-public",
-			"playlist-modify-private",
-		}
-
 		loginCompletionURI, err := loginURI(globalContext, r.Host)
 		if err != nil {
 			panic(err)
 		}
 
-		loginURI, err := url.Parse("https://accounts.spotify.com/authorize/")
+		loginURI, err := spotify.GetLoginURI(
+			globalContext.Spotify.ClientID,
+			csrfToken,
+			loginCompletionURI,
+		)
 		if err != nil {
 			panic(err)
 		}
-		loginURI.RawQuery = (url.Values{
-			"client_id":     []string{globalContext.Spotify.ClientID},
-			"response_type": []string{"code"},
-			"state":         []string{csrfToken},
-			"scope":         []string{strings.Join(scopes, " ")},
-			"redirect_uri":  []string{loginCompletionURI.String()},
-		}).Encode()
 
 		playlistURI, err := globalContext.Router.Get("playlists").URL()
 		if err != nil {

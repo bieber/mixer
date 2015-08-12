@@ -2,6 +2,7 @@ package context
 
 import (
 	"github.com/bieber/logger"
+	"github.com/bieber/mixer/mixerserver/spotify"
 	"net/http"
 	"sync"
 )
@@ -10,11 +11,8 @@ import (
 // should be both written to and read from by middleware, and read
 // from by controllers.
 type LocalContext struct {
-	Logger  *logger.Logger
-	Spotify struct {
-		AccessToken  string
-		RefreshToken string
-	}
+	Logger     *logger.Logger
+	AuthTokens spotify.AuthTokens
 }
 
 var localMutex = sync.Mutex{}

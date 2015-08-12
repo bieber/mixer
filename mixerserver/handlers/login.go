@@ -24,10 +24,9 @@ import (
 	"errors"
 	"github.com/bieber/mixer/mixerserver/context"
 	"github.com/bieber/mixer/mixerserver/crypto"
+	"github.com/bieber/mixer/mixerserver/spotify"
 	"github.com/bieber/mixer/mixerserver/util"
-	"io/ioutil"
 	"net/http"
-	"net/url"
 )
 
 // Login handles login responses from the Spotify API
@@ -61,36 +60,21 @@ func Login(globalContext *context.GlobalContext) http.HandlerFunc {
 				panic(err)
 			}
 
-			response, err := http.PostForm(
-				"https://accounts.spotify.com/api/token",
-				url.Values{
-					"grant_type":   []string{"authorization_code"},
-					"code":         []string{r.URL.Query().Get("code")},
-					"redirect_uri": []string{redirectURI.String()},
-					"client_id":    []string{globalContext.Spotify.ClientID},
-					"client_secret": []string{
-						globalContext.Spotify.ClientSecret,
-					},
-				},
+			tokens, err := spotify.GetAuthTokens(
+				globalContext.Spotify.ClientID,
+				globalContext.Spotify.ClientSecret,
+				r.URL.Query().Get("code"),
+				redirectURI,
 			)
-			if err != nil {
-				panic(err)
-			}
-			body, err := ioutil.ReadAll(response.Body)
-			if err != nil {
-				panic(err)
-			}
-			response.Body.Close()
 
-			tokens := map[string]interface{}{}
-			err = json.Unmarshal(body, &tokens)
+			data["expires_in"] = tokens.ExpiresIn
+
+			jsonToken, err := json.Marshal(tokens)
 			if err != nil {
 				panic(err)
 			}
 
-			data["expires_in"] = tokens["expires_in"]
-
-			token, err := crypto.Encrypt(string(body))
+			token, err := crypto.Encrypt(string(jsonToken))
 			if err != nil {
 				panic(err)
 			}

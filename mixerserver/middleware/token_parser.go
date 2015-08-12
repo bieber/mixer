@@ -39,21 +39,17 @@ func TokenParser(next http.Handler) http.Handler {
 			panic(err)
 		}
 
-		tokenData := struct {
-			AccessToken  string `json:"access_token"`
-			RefreshToken string `json:"refresh_token"`
-		}{}
-		err = json.Unmarshal([]byte(decryptedToken), &tokenData)
+		err = json.Unmarshal([]byte(decryptedToken), &localContext.AuthTokens)
 		if err != nil {
 			panic(err)
 		}
 
-		if tokenData.AccessToken == "" || tokenData.RefreshToken == "" {
-			panic(errors.New("Missing access or refresh token"))
+		if localContext.AuthTokens.AccessToken == "" {
+			panic(errors.New("Missing access token"))
 		}
-
-		localContext.Spotify.AccessToken = tokenData.AccessToken
-		localContext.Spotify.RefreshToken = tokenData.RefreshToken
+		if localContext.AuthTokens.RefreshToken == "" {
+			panic(errors.New("Missing refresh token"))
+		}
 
 		next.ServeHTTP(w, r)
 	})

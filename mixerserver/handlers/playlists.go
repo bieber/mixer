@@ -28,5 +28,6 @@ import (
 // JSON.
 func Playlists(w http.ResponseWriter, r *http.Request) {
 	localContext := context.Get(r)
+	localContext.Logger.Println(localContext.AuthTokens)
 	_ = localContext
 }
