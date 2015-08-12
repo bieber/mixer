@@ -17,12 +17,48 @@
  * along with mixer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React from 'react';
+import React from 'react/addons';
+
+import ListItem from '../components/ListItem.js';
+import AddableItemFooter from '../components/AddableItemFooter.js';
+import RemovableItemFooter from '../components/RemovableItemFooter.js';
+
+var {update} = React.addons;
 
 export default class Composer extends React.Component {
 	constructor(props, context) {
 		super(props, context);
-		this.state = {};
+		this.state = {
+			sourceLists: [],
+			destList: null,
+		};
+	}
+
+	onAddToSource(list, event) {
+		event.preventDefault();
+		this.setState({
+			sourceLists: update(this.state.sourceLists, {$push: [list]}),
+		});
+	}
+
+	onRemoveFromSource(index, event) {
+		event.preventDefault();
+		this.setState({
+			sourceLists: update(
+				this.state.sourceLists,
+				{$splice: [[index, 1]]}
+			),
+		});
+	}
+
+	onSetAsDest(list, event) {
+		event.preventDefault();
+		this.setState({destList: list});
+	}
+
+	onRemoveDest(event) {
+		event.preventDefault();
+		this.setState({destList: null});
 	}
 
 	render() {
@@ -30,7 +66,70 @@ export default class Composer extends React.Component {
 			return <h1>Loading playlists...</h1>;
 		}
 
-		return <p>Test</p>;
+		var usedIDs = {};
+		for (var i = 0; i < this.state.sourceLists.length; i++) {
+			usedIDs[this.state.sourceLists[i].id] = true;
+		}
+		if (this.state.destList) {
+			usedIDs[this.state.destList.id] = true;
+		}
+
+		var freeLists = this.props.playlists
+			.filter(
+				(l, i, ls) => !(l.id in usedIDs)
+			).map(
+				(l, i, ls) => (
+					<ListItem key={l.id} list={l}>
+						<AddableItemFooter
+							onAddToSource={this.onAddToSource.bind(this, l)}
+							onSetAsDest={this.onSetAsDest.bind(this, l)}
+							isOwned={this.props.userID === l.owner.id}
+						/>
+					</ListItem>
+				)
+			);
+
+		var sourceLists = this.state.sourceLists.map(
+			(l, i, ls) => (
+				<ListItem key={l.id} list={l}>
+					<RemovableItemFooter
+						onRemove={this.onRemoveFromSource.bind(this, i)}
+					/>
+				</ListItem>
+			)
+		);
+		if (sourceLists.length === 0) {
+			sourceLists = <p><em>No source lists selected</em></p>;
+		}
+
+		var destList = <p><em>No destination list selected</em></p>;
+		if (this.state.destList) {
+			destList = (
+				<ListItem list={this.state.destList}>
+					<RemovableItemFooter
+						onRemove={this.onRemoveDest.bind(this)}
+					/>
+				</ListItem>
+			);
+		}
+
+		return (
+			<div>
+				<div className="left_column">
+					<h2>Available Playlists</h2>
+					{freeLists}
+				</div>
+				<div className="middle_column">
+					<h2>Source Lists</h2>
+					{sourceLists}
+					<h2>Destination List</h2>
+					{destList}
+				</div>
+				<div className="right_column">
+					<h2>Some stuff!</h2>
+				</div>
+			</div>
+		);
 	}
 }
 Composer.propTypes = {

@@ -17,56 +17,19 @@
  * along with mixer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-body {
-	font-size: 14px;
-}
+import React from 'react';
 
-div.container {
-	width: 800px;
-	margin-left: auto;
-	margin-right: auto;
+export default class RemovableListItemFooter extends React.Component {
+	render() {
+		return (
+			<p>
+				<a href="#" onClick={this.props.onRemove}>
+					(-) Remove
+				</a>
+			</p>
+		);
+	}
 }
-
-.container h1 {
-	font-size: 30px;
-	text-align: center;
-}
-
-.container h2 {
-	font-size: 24px;
-}
-
-.container h3 {
-	font-size: 18px;
-	margin-bottom: 4px;
-}
-
-div.login_button_container {
-	text-align: center;
-}
-
-div.left_column {
-	float: left;
-	width: 300px;
-}
-
-div.middle_column {
-	float: left;
-	width: 300px;
-}
-
-div.right_column {
-	float: left;
-	width: 200px;
-}
-
-div.list_item {
-	width: 220px;
-	border-bottom: 1px solid gray;
-	margin-bottom: 4px;
-}
-
-div.list_item p {
-	margin-top: 0px;
-	margin-bottom: 4px;
+RemovableListItemFooter.propTypes = {
+	onRemove: React.PropTypes.func.isRequired,
 }
