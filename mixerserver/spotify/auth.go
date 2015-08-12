@@ -21,6 +21,7 @@ package spotify
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -54,13 +55,13 @@ func GetLoginURI(
 	if err != nil {
 		return nil, err
 	}
-	loginURI.RawQuery = (url.Values{
+	loginURI.RawQuery = url.Values{
 		"client_id":     []string{clientID},
 		"response_type": []string{"code"},
 		"state":         []string{csrfToken},
 		"scope":         []string{strings.Join(scopes, " ")},
 		"redirect_uri":  []string{redirectURI.String()},
-	}).Encode()
+	}.Encode()
 
 	return loginURI, nil
 }
@@ -89,8 +90,27 @@ func GetAuthTokens(
 	if err != nil {
 		return
 	}
+	defer response.Body.Close()
 
 	err = json.NewDecoder(response.Body).Decode(&out)
 	response.Body.Close()
+	return
+}
+
+// NewAuthenticatedRequest returns a new *http.Request with the
+// authentication headers set for the Spotify API.  Aside from the
+// authTokens argument, it is equivalent to http.NewRequest.
+func NewAuthenticatedRequest(
+	authTokens AuthTokens,
+	method string,
+	uri *url.URL,
+	body io.Reader,
+) (request *http.Request, err error) {
+	request, err = http.NewRequest(method, uri.String(), body)
+	if err != nil {
+		return
+	}
+
+	request.Header.Set("Authorization", "Bearer "+authTokens.AccessToken)
 	return
 }

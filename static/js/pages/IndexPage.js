@@ -29,16 +29,22 @@ export default class IndexPage extends React.Component {
 		this.state = {
 			token: null,
 			playlists: null,
+			userID: null,
 		};
 	}
 
 	onLogin(data) {
-		this.setState({token: data.token});
 		setTimeout(this.refreshToken.bind(this), data.expires_in * 1000);
-		Qajax({
-			url: this.props.playlistsURI,
-			params: {token: this.state.token},
-		});
+		this.setState(
+			{token: data.token},
+			() => Qajax({
+				url: this.props.playlistsURI,
+				params: {token: this.state.token},
+			})
+				.then(Qajax.filterSuccess)
+				.then(Qajax.toJSON)
+				.then(payload => this.setState(payload))
+		)
 	}
 
 	refreshToken() {
@@ -56,8 +62,7 @@ export default class IndexPage extends React.Component {
 		if (this.state.token !== null) {
 			view = (
 				<Composer
-					token={this.state.token}
-					playlists={this.state.playlists}
+					{...this.state}
 				/>
 			);
 		}

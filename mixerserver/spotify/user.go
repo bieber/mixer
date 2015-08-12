@@ -17,37 +17,41 @@
  * along with mixer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package handlers
+package spotify
 
 import (
 	"encoding/json"
-	"github.com/bieber/mixer/mixerserver/context"
-	"github.com/bieber/mixer/mixerserver/spotify"
 	"net/http"
+	"net/url"
 )
 
-// Playlists fetches and returns a list of the user's playlists as
-// JSON.
-func Playlists(w http.ResponseWriter, r *http.Request) {
-	localContext := context.Get(r)
-
-	userID, err := spotify.GetUserID(localContext.AuthTokens)
+// GetUserID fetches the Spotify user ID of the logged-in user.
+func GetUserID(authTokens AuthTokens) (userID string, err error) {
+	client := &http.Client{}
+	uri, err := url.Parse("https://api.spotify.com/v1/me")
 	if err != nil {
-		panic(err)
-	}
-	playlists, err := spotify.GetPlaylists(localContext.AuthTokens, userID)
-	if err != nil {
-		panic(err)
+		return
 	}
 
-	result := map[string]interface{}{
-		"userID":    userID,
-		"playlists": playlists,
+	request, err := NewAuthenticatedRequest(authTokens, "GET", uri, nil)
+	if err != nil {
+		return
 	}
 
-	w.Header().Set("Content-type", "application/json")
-	err = json.NewEncoder(w).Encode(result)
+	response, err := client.Do(request)
 	if err != nil {
-		panic(err)
+		return
 	}
+	defer response.Body.Close()
+
+	output := struct {
+		UserID string `json:"id"`
+	}{}
+	err = json.NewDecoder(response.Body).Decode(&output)
+	if err != nil {
+		return
+	}
+
+	userID = output.UserID
+	return
 }

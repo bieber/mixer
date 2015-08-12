@@ -79,7 +79,7 @@ export default class Intro extends React.Component {
 					</li>
 					<li>
 						To operate, it will need access to both read and write
-						from your playlistst.  In particular, it will write to
+						from your playlists.  In particular, it will write to
 						the playlist you select as a destination and destroy
 						anything that's already there.  Don't set any playlist
 						as a destination if you want to preserve the data in

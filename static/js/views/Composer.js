@@ -35,5 +35,6 @@ export default class Composer extends React.Component {
 }
 Composer.propTypes = {
 	token: React.PropTypes.string.isRequired,
+	userID: React.PropTypes.string,
 	playlists: React.PropTypes.array,
 };
