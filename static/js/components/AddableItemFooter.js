@@ -22,14 +22,14 @@ import React from 'react';
 export default class AddableItemFooter extends React.Component {
 	render() {
 		var destButton = null;
-		if (this.props.isOwned) {
+		if (this.props.isDestEligible) {
 			destButton = (
 				<a href="#" onClick={this.props.onSetAsDest}>
 					(+) Dest
 				</a>
 			);
 		}
-		
+
 		return (
 			<p>
 				<a href="#" onClick={this.props.onAddToSource}>
@@ -44,5 +44,5 @@ export default class AddableItemFooter extends React.Component {
 AddableItemFooter.propTypes = {
 	onAddToSource: React.PropTypes.func.isRequired,
 	onSetAsDest: React.PropTypes.func.isRequired,
-	isOwned: React.PropTypes.bool.isRequired,
+	isDestEligible: React.PropTypes.bool.isRequired,
 }

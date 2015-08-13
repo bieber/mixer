@@ -74,6 +74,10 @@ export default class Composer extends React.Component {
 			usedIDs[this.state.destList.id] = true;
 		}
 
+		var isDestEligible = l => {
+			return this.props.userID === l.owner.id || l.collaborative;
+		}
+
 		var freeLists = this.props.playlists
 			.filter(
 				(l, i, ls) => !(l.id in usedIDs)
@@ -83,7 +87,7 @@ export default class Composer extends React.Component {
 						<AddableItemFooter
 							onAddToSource={this.onAddToSource.bind(this, l)}
 							onSetAsDest={this.onSetAsDest.bind(this, l)}
-							isOwned={this.props.userID === l.owner.id}
+							isDestEligible={isDestEligible(l)}
 						/>
 					</ListItem>
 				)

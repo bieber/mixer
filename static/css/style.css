@@ -18,7 +18,7 @@
  */
 
 body {
-	font-size: 14px;
+	font-size: 20px;
 }
 
 div.container {
@@ -28,16 +28,16 @@ div.container {
 }
 
 .container h1 {
-	font-size: 30px;
+	font-size: 36px;
 	text-align: center;
 }
 
 .container h2 {
-	font-size: 24px;
+	font-size: 30px;
 }
 
 .container h3 {
-	font-size: 18px;
+	font-size: 26px;
 	margin-bottom: 4px;
 }
 
