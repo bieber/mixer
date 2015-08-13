@@ -27,6 +27,7 @@ import (
 )
 
 const playlistBatchSize = 30
+const trackBatchSize = 100
 
 // Playlist lists all the vital information for a Spotify playlist.
 type Playlist struct {
@@ -88,5 +89,74 @@ func GetPlaylists(
 			break
 		}
 	}
+	return
+}
+
+// GetPlaylistTrackIDs returns the IDs of all the tracks in the given
+// playlist.  Note that some inconsistency could result here if
+// someone adds or removes tracks in between batches, but that's not a
+// serious enough issue to bother with for now.
+func GetPlaylistTrackIDs(
+	authTokens AuthTokens,
+	userID string,
+	playlistID string,
+) (trackIDs []string, err error) {
+	trackIDs = []string{}
+
+	fetchURI, err := url.Parse(
+		"" +
+			"https://api.spotify.com/v1/users/" +
+			userID +
+			"/playlists/" +
+			playlistID +
+			"/tracks",
+	)
+	if err != nil {
+		return
+	}
+
+	client := &http.Client{}
+	var request *http.Request
+	var response *http.Response
+	for batch := 0; true; batch++ {
+		fetchURI.RawQuery = url.Values{
+			"offset": []string{strconv.Itoa(batch * trackBatchSize)},
+			"limit":  []string{strconv.Itoa(trackBatchSize)},
+			"fields": []string{"items(track(id)),next"},
+		}.Encode()
+
+		request, err = NewAuthenticatedRequest(authTokens, "GET", fetchURI, nil)
+		if err != nil {
+			return
+		}
+
+		response, err = client.Do(request)
+		if err != nil {
+			return
+		}
+		defer response.Body.Close()
+
+		result := struct {
+			Tracks []struct {
+				Track struct {
+					ID string `json:"id"`
+				} `json:"track"`
+			} `json:"items"`
+			Next string `json:"next"`
+		}{}
+		err = json.NewDecoder(response.Body).Decode(&result)
+		if err != nil {
+			return
+		}
+
+		for _, track := range result.Tracks {
+			trackIDs = append(trackIDs, track.Track.ID)
+		}
+
+		if result.Next == "" {
+			break
+		}
+	}
+
 	return
 }

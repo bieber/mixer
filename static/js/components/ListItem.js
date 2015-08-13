@@ -26,7 +26,7 @@ export default class ListItem extends React.Component {
 		if (this.props.list.collaborative) {
 			properties.push('Collaborative');
 		}
-		
+
 		return (
 			<div className="list_item">
 				<h3>

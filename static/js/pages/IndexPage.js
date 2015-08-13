@@ -51,7 +51,12 @@ export default class IndexPage extends React.Component {
 	onSubmit(data) {
 		this.setState(
 			{submitted: true},
-			() => console.log(data)
+			() => Qajax({
+				url: this.props.submitURI,
+				method: 'POST',
+				params: {token: this.state.token},
+				data: data,
+			})
 		);
 	}
 
@@ -90,4 +95,5 @@ export default class IndexPage extends React.Component {
 IndexPage.propTypes = {
 	loginURI: React.PropTypes.string.isRequired,
 	playlistsURI: React.PropTypes.string.isRequired,
+	submitURI: React.PropTypes.string.isRequired,
 };

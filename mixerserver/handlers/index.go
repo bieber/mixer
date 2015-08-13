@@ -56,7 +56,12 @@ func Index(globalContext *context.GlobalContext) http.HandlerFunc {
 			panic(err)
 		}
 
-		playlistURI, err := globalContext.Router.Get("playlists").URL()
+		playlistsURI, err := globalContext.Router.Get("playlists").URL()
+		if err != nil {
+			panic(err)
+		}
+
+		submitURI, err := globalContext.Router.Get("submit").URL()
 		if err != nil {
 			panic(err)
 		}
@@ -65,7 +70,8 @@ func Index(globalContext *context.GlobalContext) http.HandlerFunc {
 			w,
 			map[string]interface{}{
 				"loginURI":     loginURI.String(),
-				"playlistsURI": playlistURI.String(),
+				"playlistsURI": playlistsURI.String(),
+				"submitURI":    submitURI.String(),
 			},
 		)
 		if err != nil {

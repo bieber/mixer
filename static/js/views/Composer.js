@@ -83,10 +83,22 @@ export default class Composer extends React.Component {
 			pad,
 		} = this.state;
 
+		function listExtractor(list) {
+			return {
+				id: list.id,
+				owner_id: list.owner.id,
+			};
+		}
+
 		this.props.onSubmit({
-			source_lists: sourceLists.map(l => l.id),
-			dest_list: destList.id,
-			options: {roundRobin, shuffle, dedup, pad},
+			source_lists: sourceLists.map((l, i, ls) => listExtractor(l)),
+			dest_list: listExtractor(destList),
+			options: {
+				round_robin: roundRobin,
+				shuffle: shuffle,
+				dedup: dedup,
+				pad: pad,
+			},
 		});
 	}
 

@@ -55,6 +55,8 @@ func initRoutes(
 		Name("login")
 	r.Handle("/playlists/", tokenStack.ThenFunc(handlers.Playlists)).
 		Name("playlists")
+	r.Handle("/submit/", tokenStack.Then(handlers.Submit(globalContext))).
+		Name("submit")
 
 	staticHandler := func(subpath string) http.Handler {
 		return basicStack.Then(
