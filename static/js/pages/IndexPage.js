@@ -22,6 +22,7 @@ import Qajax from 'qajax';
 
 import Intro from '../views/Intro.js';
 import Composer from '../views/Composer.js';
+import Submitted from '../views/Submitted.js';
 
 export default class IndexPage extends React.Component {
 	constructor(props, context) {
@@ -47,6 +48,13 @@ export default class IndexPage extends React.Component {
 		)
 	}
 
+	onSubmit(data) {
+		this.setState(
+			{submitted: true},
+			() => console.log(data)
+		);
+	}
+
 	refreshToken() {
 		console.log('Refreshing login tokens');
 	}
@@ -63,8 +71,13 @@ export default class IndexPage extends React.Component {
 			view = (
 				<Composer
 					{...this.state}
+					onSubmit={this.onSubmit.bind(this)}
 				/>
 			);
+		}
+
+		if (this.state.submitted) {
+			view = <Submitted />;
 		}
 
 		return (

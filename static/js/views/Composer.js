@@ -31,6 +31,10 @@ export default class Composer extends React.Component {
 		this.state = {
 			sourceLists: [],
 			destList: null,
+			roundRobin: false,
+			shuffle: false,
+			dedup: false,
+			pad: false,
 		};
 	}
 
@@ -59,6 +63,31 @@ export default class Composer extends React.Component {
 	onRemoveDest(event) {
 		event.preventDefault();
 		this.setState({destList: null});
+	}
+
+	onFlipBool(field, event) {
+		var update = {};
+		update[field] = event.target.checked;
+		this.setState(update);
+	}
+
+	onSubmit(event) {
+		event.preventDefault();
+
+		var {
+			sourceLists,
+			destList,
+			roundRobin,
+			shuffle,
+			dedup,
+			pad,
+		} = this.state;
+
+		this.props.onSubmit({
+			source_lists: sourceLists.map(l => l.id),
+			dest_list: destList.id,
+			options: {roundRobin, shuffle, dedup, pad},
+		});
 	}
 
 	render() {
@@ -117,6 +146,9 @@ export default class Composer extends React.Component {
 			);
 		}
 
+		var readyToSubmit = this.state.sourceLists.length > 0
+			&& this.state.destList !== null;
+
 		return (
 			<div>
 				<div className="left_column">
@@ -130,7 +162,67 @@ export default class Composer extends React.Component {
 					{destList}
 				</div>
 				<div className="right_column">
-					<h2>Some stuff!</h2>
+					<h2>Mix</h2>
+					<label>
+						<input
+							type="checkbox"
+							checked={this.state.roundRobin}
+							onChange={this.onFlipBool.bind(this, 'roundRobin')}
+						/>
+						<span>
+							<strong>Round Robin</strong>
+							<br />
+							Insert one song at a time from each playlist.
+						</span>
+					</label>
+					<br /><br />
+					<label>
+						<input
+							type="checkbox"
+							checked={this.state.shuffle}
+							onChange={this.onFlipBool.bind(this, 'shuffle')}
+						/>
+						<span>
+							<strong>Shuffle</strong>
+							<br />
+							Insert songs in random onder.
+						</span>
+					</label>
+					<br /><br />
+					<label>
+						<input
+							type="checkbox"
+							checked={this.state.dedup}
+							onChange={this.onFlipBool.bind(this, 'dedup')}
+						/>
+						<span>
+							<strong>Deduplicate</strong>
+							<br />
+							If a song appears in multiple source playlists, only
+							insert it once into the output.
+						</span>
+					</label>
+					<br /><br />
+					<label>
+						<input
+							type="checkbox"
+							checked={this.state.pad}
+							onChange={this.onFlipBool.bind(this, 'pad')}
+						/>
+						<span>
+							<strong>Pad</strong>
+							<br />
+							Repeat songs from shorter playlists to equal the
+							length of longer playlists.
+						</span>
+					</label>
+					<br /><br />
+					<input
+						type="submit"
+						value="Mix"
+						disabled={!readyToSubmit}
+						onClick={this.onSubmit.bind(this)}
+					/>
 				</div>
 			</div>
 		);
@@ -140,4 +232,5 @@ Composer.propTypes = {
 	token: React.PropTypes.string.isRequired,
 	userID: React.PropTypes.string,
 	playlists: React.PropTypes.array,
+	onSubmit: React.PropTypes.func.isRequired,
 };

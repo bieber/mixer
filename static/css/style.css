@@ -37,7 +37,7 @@ div.container {
 }
 
 .container h3 {
-	font-size: 26px;
+	font-size: 24px;
 	margin-bottom: 4px;
 }
 
@@ -60,6 +60,14 @@ div.right_column {
 	width: 200px;
 }
 
+div.right_column label {
+	margin-bottom: 4px;
+}
+
+div.right_column input {
+	margin-right: 12px;
+}
+
 div.list_item {
 	width: 220px;
 	border-bottom: 1px solid gray;
@@ -69,4 +77,8 @@ div.list_item {
 div.list_item p {
 	margin-top: 0px;
 	margin-bottom: 4px;
+}
+
+p.submitted {
+	text-align: center;
 }
