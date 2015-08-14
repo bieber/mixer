@@ -24,6 +24,7 @@ import (
 	"github.com/bieber/logger"
 	"github.com/bieber/mixer/mixerserver/context"
 	"github.com/bieber/mixer/mixerserver/spotify"
+	"math/rand"
 	"net/http"
 	"sort"
 	"strings"
@@ -70,13 +71,13 @@ func Submit(globalContext *context.GlobalContext) http.HandlerFunc {
 			panic(err)
 		}
 
-		go MixPlaylists(globalContext, localContext, userID, data)
+		go mixPlaylists(globalContext, localContext, userID, data)
 	}
 }
 
-// MixPlaylists performs the mix operation triggered by the Submit
+// mixPlaylists performs the mix operation triggered by the Submit
 // handler.
-func MixPlaylists(
+func mixPlaylists(
 	globalContext *context.GlobalContext,
 	localContext *context.LocalContext,
 	userID string,
@@ -122,21 +123,17 @@ func MixPlaylists(
 		sourceTrackIDs = append(sourceTrackIDs, trackIDs)
 	}
 
-	destTrackIDs, err := spotify.GetPlaylistTrackIDs(
+	combinedTrackIDs := combineSourceTracks(sourceTrackIDs, data.Options)
+
+	err := spotify.WritePlaylist(
 		localContext.AuthTokens,
 		data.DestList.OwnerID,
 		data.DestList.ID,
+		combinedTrackIDs,
 	)
 	if err != nil {
 		panic(err)
 	}
-
-	combinedTrackIDs, err := CombineSourceTracks(sourceTrackIDs, data.Options)
-	if err != nil {
-		panic(err)
-	}
-
-	_, _ = destTrackIDs, combinedTrackIDs
 
 	log.Printf("FINISHED IN %v", time.Now().Sub(t0))
 	loggerMutex.Lock()
@@ -148,15 +145,134 @@ func MixPlaylists(
 	}
 }
 
-// CombineSourceTracks arranges the tracks from multiple source
-// playlists into a single combined result playlist.
-func CombineSourceTracks(
+func combineSourceTracks(
 	sourceTrackIDs [][]string,
 	options submissionOptions,
-) (trackIDs []string, err error) {
+) []string {
+	if options.Dedup {
+		sourceTrackIDs = dedupSourceTracks(sourceTrackIDs)
+	}
+	if options.Shuffle {
+		sourceTrackIDs = shuffleSourceTracks(sourceTrackIDs, options.Pad)
+	}
+	// If both Pad and Shuffle were set, the tracks have already been
+	// shuffled and padded
+	if options.Pad && !options.Shuffle {
+		sourceTrackIDs = padSourceTracks(sourceTrackIDs)
+	}
+
+	totalLength := 0
+	for _, list := range sourceTrackIDs {
+		totalLength += len(list)
+	}
+	destList := make([]string, totalLength)
+
+	srcList := 0
+	srcPositions := make([]int, len(sourceTrackIDs))
+
+	for i := range destList {
+		destList[i] = sourceTrackIDs[srcList][srcPositions[srcList]]
+		if i == len(destList)-1 {
+			break
+		}
+
+		srcPositions[srcList]++
+		if options.RoundRobin {
+			srcList = (srcList + 1) % len(sourceTrackIDs)
+		}
+		for srcPositions[srcList] >= len(sourceTrackIDs[srcList]) {
+			srcList = (srcList + 1) % len(sourceTrackIDs)
+		}
+	}
+
+	return destList
+}
+
+func dedupSourceTracks(sourceTrackIDs [][]string) [][]string {
 	sort.Sort(trackLists(sourceTrackIDs))
 
-	return
+	seenIDs := map[string]bool{}
+	deduped := [][]string{}
+
+	for _, list := range sourceTrackIDs {
+		newList := []string{}
+
+		for _, track := range list {
+			if _, ok := seenIDs[track]; ok {
+				continue
+			}
+
+			seenIDs[track] = true
+			newList = append(newList, track)
+		}
+
+		deduped = append(deduped, newList)
+	}
+
+	return deduped
+}
+
+// If a list is being both padded and shuffled, the padding needs to
+// happen at the same time as the shuffling so we can make sure not to
+// include duplicates before the entire list has been exhausted.
+func shuffleSourceTracks(sourceTrackIDs [][]string, pad bool) [][]string {
+	maxLength := 0
+	for _, list := range sourceTrackIDs {
+		if len(list) > maxLength {
+			maxLength = len(list)
+		}
+	}
+
+	shuffled := [][]string{}
+	for _, sourceList := range sourceTrackIDs {
+		targetLength := len(sourceList)
+		if pad {
+			targetLength = maxLength
+		}
+		destList := make([]string, targetLength, targetLength)
+
+		for i := range destList {
+			modLen := i % len(sourceList)
+			baseChars := (i / len(sourceList)) * len(sourceList)
+			srcPos := i % len(sourceList)
+
+			j := baseChars
+			if modLen != 0 {
+				j += rand.Intn(modLen)
+			}
+
+			if j == i {
+				destList[i] = sourceList[srcPos]
+			} else {
+				destList[i] = destList[j]
+				destList[j] = sourceList[srcPos]
+			}
+		}
+
+		shuffled = append(shuffled, destList)
+	}
+
+	return shuffled
+}
+
+func padSourceTracks(sourceTrackIDs [][]string) [][]string {
+	maxLength := 0
+	for _, list := range sourceTrackIDs {
+		if len(list) > maxLength {
+			maxLength = len(list)
+		}
+	}
+
+	padded := [][]string{}
+	for _, sourceList := range sourceTrackIDs {
+		newList := make([]string, maxLength)
+		for i := range newList {
+			newList[i] = sourceList[i%len(sourceList)]
+		}
+		padded = append(padded, newList)
+	}
+
+	return padded
 }
 
 func (ls trackLists) Len() int {
