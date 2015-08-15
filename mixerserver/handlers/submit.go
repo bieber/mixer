@@ -236,10 +236,7 @@ func shuffleSourceTracks(sourceTrackIDs [][]string, pad bool) [][]string {
 			baseChars := (i / len(sourceList)) * len(sourceList)
 			srcPos := i % len(sourceList)
 
-			j := baseChars
-			if modLen != 0 {
-				j += rand.Intn(modLen)
-			}
+			j := baseChars + rand.Intn(modLen+1)
 
 			if j == i {
 				destList[i] = sourceList[srcPos]
