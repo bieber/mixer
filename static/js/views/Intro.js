@@ -91,6 +91,12 @@ export default class Intro extends React.Component {
 						to facilitate automated synchronization, but for now
 						it operates on a strictly manual basis.
 					</li>
+					<li>
+						You can access the source code at{' '}
+						<a href="https://www.github.com/bieber/mixer/">
+							github.com/bieber/mixer
+						</a>.
+					</li>
 				</ul>
 				<p>
 					If you're okay with all of that, then go ahead and...

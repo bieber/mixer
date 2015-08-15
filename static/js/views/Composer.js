@@ -197,7 +197,7 @@ export default class Composer extends React.Component {
 						<span>
 							<strong>Shuffle</strong>
 							<br />
-							Insert songs in random onder.
+							Insert songs in random order.
 						</span>
 					</label>
 					<br /><br />
