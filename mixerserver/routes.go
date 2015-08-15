@@ -53,6 +53,8 @@ func initRoutes(
 	r.Handle("/", basicStack.Then(handlers.Index(globalContext)))
 	r.Handle("/login/", basicStack.Then(handlers.Login(globalContext))).
 		Name("login")
+	r.Handle("/refresh/", tokenStack.Then(handlers.Refresh(globalContext))).
+		Name("refresh")
 	r.Handle("/playlists/", tokenStack.ThenFunc(handlers.Playlists)).
 		Name("playlists")
 	r.Handle("/submit/", tokenStack.Then(handlers.Submit(globalContext))).

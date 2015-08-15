@@ -87,3 +87,41 @@ func Login(globalContext *context.GlobalContext) http.HandlerFunc {
 		}
 	}
 }
+
+// Refresh fetches new auth tokens for an existing session that has
+// expired.
+func Refresh(globalContext *context.GlobalContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		localContext := context.Get(r)
+
+		tokens, err := spotify.RefreshAuthTokens(
+			localContext.AuthTokens,
+			globalContext.Spotify.ClientID,
+			globalContext.Spotify.ClientSecret,
+		)
+		if err != nil {
+			panic(err)
+		}
+
+		data := map[string]interface{}{
+			"expires_in": tokens.ExpiresIn,
+		}
+
+		jsonToken, err := json.Marshal(tokens)
+		if err != nil {
+			panic(err)
+		}
+
+		token, err := crypto.Encrypt(string(jsonToken))
+		if err != nil {
+			panic(err)
+		}
+		data["token"] = token
+
+		w.Header().Set("Content-type", "application/json")
+		err = json.NewEncoder(w).Encode(data)
+		if err != nil {
+			panic(err)
+		}
+	}
+}

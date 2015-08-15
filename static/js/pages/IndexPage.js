@@ -60,8 +60,16 @@ export default class IndexPage extends React.Component {
 		);
 	}
 
+	onRefreshResponse(data) {
+		setTimeout(this.refreshToken.bind(this), data.expires_in * 1000);
+		this.setState({token: data.token});
+	}
+
 	refreshToken() {
-		console.log('Refreshing login tokens');
+		Qajax({url: this.props.refreshURI, params: {token: this.state.token}})
+			.then(Qajax.filterSuccess)
+			.then(Qajax.toJSON)
+			.then(this.onRefreshResponse.bind(this));
 	}
 
 	render() {
@@ -94,6 +102,7 @@ export default class IndexPage extends React.Component {
 }
 IndexPage.propTypes = {
 	loginURI: React.PropTypes.string.isRequired,
+	refreshURI: React.PropTypes.string.isRequired,
 	playlistsURI: React.PropTypes.string.isRequired,
 	submitURI: React.PropTypes.string.isRequired,
 };

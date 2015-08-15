@@ -20,7 +20,9 @@
 package spotify
 
 import (
+	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/url"
@@ -94,6 +96,58 @@ func GetAuthTokens(
 
 	err = json.NewDecoder(response.Body).Decode(&out)
 	response.Body.Close()
+	return
+}
+
+// RefreshAuthTokens fetches authentication tokens from the Spotify
+// server to refresh stale ones.
+func RefreshAuthTokens(
+	authTokens AuthTokens,
+	clientID string,
+	clientSecret string,
+) (out AuthTokens, err error) {
+	uri, err := url.Parse("https://accounts.spotify.com/api/token")
+	if err != nil {
+		return
+	}
+
+	body := strings.NewReader(
+		url.Values{
+			"grant_type":    []string{"refresh_token"},
+			"refresh_token": []string{authTokens.RefreshToken},
+		}.Encode(),
+	)
+
+	client := &http.Client{}
+	request, err := http.NewRequest("POST", uri.String(), body)
+	if err != nil {
+		return
+	}
+	request.Header.Set(
+		"Authorization",
+		""+
+			"Basic "+
+			base64.URLEncoding.EncodeToString(
+				[]byte(clientID+":"+clientSecret),
+			),
+	)
+	request.Header.Set("Content-type", "application/x-www-form-urlencoded")
+
+	response, err := client.Do(request)
+	if err != nil {
+		return
+	}
+	if response.StatusCode != http.StatusOK {
+		err = errors.New(response.Status)
+	}
+	defer response.Body.Close()
+
+	err = json.NewDecoder(response.Body).Decode(&out)
+	if err != nil {
+		return
+	}
+
+	out.RefreshToken = authTokens.RefreshToken
 	return
 }
 

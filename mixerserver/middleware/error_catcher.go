@@ -20,8 +20,8 @@
 package middleware
 
 import (
+	"github.com/bieber/mixer/mixerserver/context"
 	"github.com/bieber/mixer/mixerserver/handlers"
-	"log"
 	"net/http"
 )
 
@@ -30,6 +30,8 @@ import (
 func ErrorCatcher(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
+			localContext := context.Get(r)
+
 			err := recover()
 			if err == nil {
 				return
@@ -39,7 +41,7 @@ func ErrorCatcher(next http.Handler) http.Handler {
 			case handlers.Err404:
 				handlers.FourOhFour(w, r)
 			default:
-				log.Printf("PANIC: %v", err)
+				localContext.Logger.Printf("PANIC: %v", err)
 				handlers.FiveHundred(w, r)
 			}
 		}()
