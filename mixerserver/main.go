@@ -27,8 +27,10 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 	"io"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
+	"time"
 )
 
 // Config defines configuration options for the server.
@@ -78,6 +80,8 @@ func main() {
 		log.SetOutput(fout)
 		logOut = fout
 	}
+
+	rand.Seed(time.Now().Unix())
 
 	if config.GenKey {
 		key, err := crypto.GenerateAESKey()
