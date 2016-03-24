@@ -27,7 +27,6 @@ import (
 	"github.com/justinas/alice"
 	"github.com/sebest/xff"
 	"net/http"
-
 	"path"
 	"path/filepath"
 )
