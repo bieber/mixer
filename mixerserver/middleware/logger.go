@@ -23,6 +23,7 @@ import (
 	"github.com/bieber/logger"
 	"github.com/bieber/mixer/mixerserver/context"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 )
@@ -52,7 +53,7 @@ func Logger(
 			localContext.Logger.Printf("FINISHED IN %v", time.Now().Sub(t0))
 
 			loggerMutex.Lock()
-			_, err := localContext.Logger.WriteTo(globalContext.LogOut)
+			_, err := localContext.Logger.WriteTo(os.Stderr)
 			loggerMutex.Unlock()
 
 			if err != nil {

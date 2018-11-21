@@ -3,7 +3,6 @@ package context
 import (
 	"github.com/gorilla/mux"
 	"html/template"
-	"io"
 )
 
 // GlobalContext stores data relevant to the entire server process.
@@ -15,7 +14,6 @@ type GlobalContext struct {
 		Index *template.Template
 		Login *template.Template
 	}
-	LogOut  io.Writer
 	Spotify struct {
 		ClientID     string
 		ClientSecret string

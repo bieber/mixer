@@ -26,6 +26,7 @@ import (
 	"github.com/bieber/mixer/mixerserver/spotify"
 	"math/rand"
 	"net/http"
+	"os"
 	"sort"
 	"strings"
 	"sync"
@@ -89,7 +90,7 @@ func mixPlaylists(
 	defer func(log *logger.Logger) {
 		if err := recover(); err != nil {
 			log.Printf("====\nPANIC WHILE MIXING: %V", err)
-			log.WriteTo(globalContext.LogOut)
+			log.WriteTo(os.Stderr)
 		}
 	}(log)
 
@@ -137,7 +138,7 @@ func mixPlaylists(
 
 	log.Printf("FINISHED IN %v", time.Now().Sub(t0))
 	loggerMutex.Lock()
-	_, err = log.WriteTo(globalContext.LogOut)
+	_, err = log.WriteTo(os.Stderr)
 	loggerMutex.Unlock()
 
 	if err != nil {

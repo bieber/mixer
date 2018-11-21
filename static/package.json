@@ -2,6 +2,9 @@
   "name": "mixer",
   "description": "Static files for mixer",
   "version": "0.1.0",
+  "scripts": {
+    "build": "gulp build"
+  },
   "dependencies": {
     "qajax": "^1.3.0",
     "react": "^0.13.3",
