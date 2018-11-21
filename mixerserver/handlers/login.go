@@ -67,6 +67,10 @@ func Login(globalContext *context.GlobalContext) http.HandlerFunc {
 				redirectURI,
 			)
 
+			if err != nil {
+				panic(err)
+			}
+
 			data["expires_in"] = tokens.ExpiresIn
 
 			jsonToken, err := json.Marshal(tokens)
