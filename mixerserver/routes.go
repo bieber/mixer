@@ -26,6 +26,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 	"github.com/sebest/xff"
+	"log"
 	"net/http"
 	"path"
 	"path/filepath"
@@ -38,11 +39,15 @@ func initRoutes(
 	r := mux.NewRouter().StrictSlash(true)
 	globalContext.Router = r
 
+	xffmw, err := xff.Default()
+	if err != nil {
+		log.Fatal(err)
+	}
 	basicStack := alice.New(
 		// This bottom instance of ErrorCatcher will catch any
 		// failures in the logging or cleanup code, as a last resort.
 		middleware.ErrorCatcher,
-		xff.Handler,
+		xffmw.Handler,
 		middleware.ContextCleaner,
 		middleware.Logger(globalContext),
 		middleware.ErrorCatcher,
