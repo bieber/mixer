@@ -1,8 +1,8 @@
 FROM node:6-alpine AS frontend-builder
-ENV NODE_ENV production
 WORKDIR /app
 COPY ./static /app
 RUN npm install
+ENV NODE_ENV production
 RUN npm run build
 
 FROM golang:1.10-alpine AS backend-builder
