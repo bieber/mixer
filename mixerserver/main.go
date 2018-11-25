@@ -35,7 +35,7 @@ func main() {
 	rand.Seed(time.Now().Unix())
 
 	for _, flag := range os.Args {
-		if flag == "-h" || flag == "--help" {
+		if flag == "-k" || flag == "--key" {
 			key, err := crypto.GenerateAESKey()
 			if err != nil {
 				log.Fatal(err)
