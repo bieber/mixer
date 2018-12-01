@@ -56,6 +56,7 @@ func main() {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("./config")
+	viper.AddConfigPath("/run/secrets")
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Printf("Couldn't load config file: %s", err.Error())
