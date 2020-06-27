@@ -96,7 +96,7 @@ func loginURI(
 	if err != nil {
 		return nil, err
 	}
-	loginCompletionURI.Scheme = "http"
+	loginCompletionURI.Scheme = "https"
 	loginCompletionURI.Host = host
 	return loginCompletionURI, nil
 }
