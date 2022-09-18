@@ -5,13 +5,12 @@ RUN npm install
 ENV NODE_ENV production
 RUN npm run build
 
-FROM golang:1.10-alpine AS backend-builder
-WORKDIR /go/src/github.com/bieber/mixer/mixerserver
-RUN apk add git
-COPY ./mixerserver /go/src/github.com/bieber/mixer/mixerserver
-RUN go get -d github.com/bieber/mixer/mixerserver
+FROM golang:1.18-alpine AS backend-builder
 RUN mkdir /app
-RUN go build -o /app/server github.com/bieber/mixer/mixerserver
+WORKDIR /app
+RUN apk add git
+COPY ./mixerserver ./
+RUN go build -o server
 
 FROM alpine:latest
 LABEL maintainer="docker@biebersprojects.com"
