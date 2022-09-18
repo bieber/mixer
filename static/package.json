@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "babelify": "^6.1.2",
-    "browserify": "^10.2.4",
+    "browserify": "^17.0.0",
     "gulp": "^3.9.0",
     "gulp-cli": "^2.3.0",
     "gulp-if": "^1.2.5",
