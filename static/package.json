@@ -11,11 +11,11 @@
     "react-addons": "^0.9.1-deprecated"
   },
   "devDependencies": {
-    "babelify": "^6.1.2",
-    "browserify": "^10.2.4",
-    "gulp": "^3.9.0",
+    "babelify": "^10.0.0",
+    "browserify": "^17.0.0",
+    "gulp": "^4.0.2",
     "gulp-cli": "^2.3.0",
-    "gulp-if": "^1.2.5",
+    "gulp-if": "^3.0.0",
     "gulp-streamify": "0.0.5",
     "gulp-uglify": "^1.2.0",
     "gulp-util": "^3.0.6",
