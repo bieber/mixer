@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"io"
 )
 
 const playlistBatchSize = 30
@@ -300,7 +301,8 @@ func WritePlaylist(
 			return err
 		}
 		if response.StatusCode != http.StatusCreated {
-			return errors.New(response.Status)
+			body, _ := io.ReadAll(response.Body)
+			return errors.New(response.Status + ": " + string(body))
 		}
 		response.Body.Close()
 	}
