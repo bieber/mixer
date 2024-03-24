@@ -23,10 +23,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
-	"io"
 )
 
 const playlistBatchSize = 30
@@ -300,7 +300,8 @@ func WritePlaylist(
 		if err != nil {
 			return err
 		}
-		if response.StatusCode != http.StatusCreated {
+		if response.StatusCode != http.StatusCreated &&
+			response.StatusCode != http.StatusOK {
 			body, _ := io.ReadAll(response.Body)
 			return errors.New(response.Status + ": " + string(body))
 		}
